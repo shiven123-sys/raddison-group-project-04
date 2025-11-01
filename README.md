@@ -1,78 +1,105 @@
-🧠 Claude Code Web (Gemini Edition)
+<!-- Banner image (Optional: Replace with your image link) -->
+<p align="center">
+  <img src="https://private-user-images.githubusercontent.com/208932917/508606593-fbe50ee5-e957-4610-8b7b-5fb07aa7d0b2.png" alt="Claude Code Web (Gemini Edition) Banner" style="width:90%;border-radius:12px;">
+</p>
 
-An advanced Claude-style AI code assistant powered by Google Gemini 2.5 Flash. Includes a real-time code editor, live output viewer, and sleek dark interface. Built using Flask + HTML/CSS/JS + Monaco Editor.
-🚀 Features
+<h1 align="center">🧠 Claude Code Web (Gemini Edition)</h1>
+<p align="center">
+  <strong>AI-Powered <span style="color:#fbbf24;">Code Assistant</span> with Supercharged Features</strong><br>
+  <em>by Shivam Jha · Internship Assignment 02</em>
+</p>
 
-    Claude-style chat UI with smooth interactions
+---
 
-    Monaco Editor (same as VS Code) with syntax highlighting
+## 🚀 What is Claude Code Web?
 
-    Gemini 2.5 Flash integration for AI-powered code suggestions
+Claude Code Web is a next-level coding assistant that brings together the power of <b>Google Gemini 2.5 Flash</b>, a beautiful <b>Monaco Editor</b> interface (just like VS Code), and real-time Python execution—all in one sleek, responsive app. <br>
+For those who want smart code suggestions, instant feedback, and a stress-free developer experience!
 
-    Real-time Python output viewer
+---
 
-    Flask backend — lightweight and fast
+## 🌟 Features That Shine
 
-    Fully responsive design — works on desktop & mobile
+- 🤖 **Claude-Style AI Chat**: Ask anything, get solutions and explanations with Gemini AI!
+- ⌨️ **Monaco Code Editor**: Write and edit code just like in Visual Studio Code.
+- ⚡ **Live Output**: View Python results as you run code—no extra setup required.
+- 🌓 **Dark Theme**: Code comfortably, day or night.
+- 📱 **100% Responsive**: Looks beautiful on desktop and mobile.
 
-    🛠️ Tech Stack
+---
 
-    Frontend: HTML, CSS, JavaScript
+## 🛠️ Tech & Tools
 
-    Editor: Monaco Editor
+| Frontend  |  Backend     | Editor         |  AI Engine         |
+|-----------|--------------|----------------|--------------------|
+| HTML/CSS  | Python Flask | Monaco Editor  | Gemini 2.5 Flash  
 
-    Backend: Python (Flask)
 
-    AI Model: Gemini 2.5 Flash
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?logo=linkedin)](https://www.linkedin.com/in/your-profile)
 
-    Styling: Dark themed UI
 
-📦 Installation
+## 🛠️ How to Run
 
-# 1. Clone the repo
-git clone https://github.com/your-username/claude-code-web.git
-cd claude-code-web
+1. **Clone this repo**
+    ```
+    git clone https://github.com/shiven123-sys/raddison-group-project-04.git
+    cd raddison-group-project-04
+    ```
 
-# 2. Install dependencies
-pip install -r requirements.txt
+2. **Install requirements**
+    ```
+    pip install -r requirements.txt
+    ```
 
-# 3. Run the app
-python app.py
+3. **Start the app**
+    ```
+    python app.py
+    ```
 
-Open your browser and go to: http://127.0.0.1:5000
+4. **Open in browser**
+    [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-⚙️ Folder Structure
 
 claude-code-web/
 ├── static/
-│   ├── style.css
-│   ├── script.js
+│ ├── style.css
+│ ├── script.js
 ├── templates/
-│   └── index.html
+│ └── index.html
 ├── app.py
 ├── requirements.txt
 └── README.md
 
 
+---
 
-💡 Usage
+## 💡 Why This Project?
 
-    💬 Ask Anything – Type a coding query, and Gemini will generate the solution
+> Tired of switching tabs, copy-pasting code, and cluttered UIs?  
+Claude Code Web brings everything under one roof—letting you focus on the fun part: creating and learning!
 
-    🧩 Edit or Run Code – Modify in the Monaco editor and hit Run to execute
+---
 
-    🧠 AI Assistance – Get explanations, refactoring help, or code optimization
+## 🌈 Screenshots
 
-🌈 Screenshots
-
-<img width="1920" height="2548" alt="Claude Code Web UI" src="https://github.com/user-attachments/assets/fbe50ee5-e957-4610-8b7b-5fb07aa7d0b2" />
-
-🧑‍💻 Developer
-
-👤 Shivam Jha 🎓 2nd Year AI Student | 🔧 Backend Developer | 🎨 UI/UX Enthusiast 📫 
- https://www.linkedin.com/in/your-profile
+<img width="1920" height="2548" alt="myclaude" src="https://github.com/user-attachments/assets/8e0c683c-30a9-4748-9944-130e858dc7b9" />
 
 
+---
+
+## ✨ Contribution & License
+
+Pull requests are welcome for improving UI, bug-fixes, or new features!  
+Distributed under the MIT License.
+
+---
+
+## ⭐ Let's Connect!
+
+Have an idea, suggestion, or want to collaborate?  
+Drop me a message on [LinkedIn](https://www.linkedin.com/in/your-profile)!
 
 
-⚙️ Folder Structure
+
+## 🗂️ Folder Structure
+
