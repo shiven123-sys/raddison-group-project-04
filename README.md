@@ -100,6 +100,3 @@ Have an idea, suggestion, or want to collaborate?
 Drop me a message on [LinkedIn](https://www.linkedin.com/in/your-profile)!
 
 
-
-## 🗂️ Folder Structure
-
