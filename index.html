@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Claude Code Web (Gemini Edition) — Demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Claude Code Web — Gemini Edition</div>
+    <div class="meta">Model: <select id="modelSelect"><option value="models/gemini-2.5-flash">gemini-2.5-flash</option><option value="models/gemini-2.5-pro">gemini-2.5-pro</option></select></div>
+  </header>
+
+  <main class="main">
+    <section class="left">
+      <h3>Prompt</h3>
+      <textarea id="prompt" placeholder="Describe the code or project you want..."></textarea>
+      <div class="controls">
+        <button id="generateBtn">⚡ Generate (Stream)</button>
+        <button id="generateFullBtn">Generate (Full)</button>
+        <button id="scaffoldBtn">📦 Scaffold + Download</button>
+      </div>
+      <h4>Live Output (stream)</h4>
+      <pre id="streamOutput" class="stream"></pre>
+    </section>
+
+    <section class="right">
+      <div class="editor-toolbar">
+        <button id="newFileBtn">+ New File</button>
+        <button id="downloadBtn">Download File</button>
+        <button id="runBtn">▶ Run (Python)</button>
+        <button id="copyBtn">Copy</button>
+      </div>
+      <div id="tabs" class="tabs"></div>
+      <div id="editor" style="width:100%;height:520px;border-radius:8px;overflow:hidden"></div>
+      <div class="console">
+        <h4>Console Output</h4>
+        <pre id="consoleOut"></pre>
+      </div>
+    </section>
+  </main>
+
+<script>
+require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
+let editor;
+let files = { "main.py": "# Start coding\\nprint('Hello from Gemini Code Generator')" };
+let currentFile = "main.py";
+
+function createEditor() {
+  require(['vs/editor/editor.main'], function () {
+    editor = monaco.editor.create(document.getElementById('editor'), {
+      value: files[currentFile],
+      language: 'python',
+      theme: 'vs-dark',
+      automaticLayout: true,
+      fontSize: 14,
+    });
+    renderTabs();
+  });
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  Object.keys(files).forEach(fn => {
+    const btn = document.createElement('button');
+    btn.textContent = fn;
+    btn.className = (fn === currentFile) ? 'tab active' : 'tab';
+    btn.onclick = () => { saveCurrent(); currentFile = fn; editor.setValue(files[fn]); renderTabs(); }
+    tabs.appendChild(btn);
+  });
+}
+
+function saveCurrent() {
+  if (!editor) return;
+  files[currentFile] = editor.getValue();
+}
+
+document.getElementById('newFileBtn').onclick = () => {
+  const name = prompt('Filename (e.g. app.py)');
+  if (!name) return;
+  files[name] = "# new file";
+  saveCurrent();
+  currentFile = name;
+  editor.setValue(files[name]);
+  renderTabs();
+};
+
+document.getElementById('downloadBtn').onclick = () => {
+  saveCurrent();
+  const blob = new Blob([files[currentFile]], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = currentFile;
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('copyBtn').onclick = async () => {
+  saveCurrent();
+  try {
+    await navigator.clipboard.writeText(files[currentFile]);
+    alert('Copied to clipboard');
+  } catch { alert('Copy failed'); }
+};
+
+document.getElementById('runBtn').onclick = async () => {
+  saveCurrent();
+  const code = files[currentFile];
+  document.getElementById('consoleOut').textContent = "Running...";
+  const res = await fetch('/api/run', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({code})});
+  const data = await res.json();
+  if (data.error) {
+    document.getElementById('consoleOut').textContent = "Error: " + data.error;
+  } else {
+    document.getElementById('consoleOut').textContent = data.stdout + (data.stderr?("\\nERR:\\n"+data.stderr):"");
+  }
+};
+
+document.getElementById('generateBtn').onclick = () => {
+  const prompt = document.getElementById('prompt').value.trim();
+  if (!prompt) return alert('Enter a prompt');
+  document.getElementById('streamOutput').textContent = '';
+  const model = document.getElementById('modelSelect').value;
+  const evtSource = new EventSourcePolyfill('/api/stream', { method: 'POST', payload: JSON.stringify({prompt, model}) });
+  evtSource.onmessage = function(e) {
+    if (e.data === '[DONE]') { evtSource.close(); return; }
+    document.getElementById('streamOutput').textContent += e.data;
+  };
+  evtSource.onerror = function(e) { console.error(e); evtSource.close(); alert('Stream error'); };
+};
+
+document.getElementById('generateFullBtn').onclick = async () => {
+  const prompt = document.getElementById('prompt').value.trim();
+  if (!prompt) return alert('Enter a prompt');
+  const model = document.getElementById('modelSelect').value;
+  document.getElementById('streamOutput').textContent = 'Waiting...';
+  const res = await fetch('/api/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({prompt, model})});
+  const data = await res.json();
+  if (data.reply) {
+    document.getElementById('streamOutput').textContent = data.reply;
+    const codeMatch = data.reply.match(/```[a-zA-Z0-9]*\n([\s\S]*?)```/);
+    if (codeMatch) {
+      files['generated.py'] = codeMatch[1];
+      currentFile = 'generated.py';
+      editor.setValue(files[currentFile]);
+      renderTabs();
+    }
+  } else {
+    document.getElementById('streamOutput').textContent = JSON.stringify(data);
+  }
+};
+
+document.getElementById('scaffoldBtn').onclick = async () => {
+  saveCurrent();
+  const payload = { files };
+  const res = await fetch('/api/scaffold', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+  if (res.ok) {
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'scaffold.zip'; a.click(); URL.revokeObjectURL(url);
+  } else {
+    alert('Scaffold failed: ' + await res.text());
+  }
+};
+
+function EventSourcePolyfill(url, opts) {
+  const evtSource = {};
+  const xhr = new XMLHttpRequest();
+  xhr.open(opts.method || 'GET', url, true);
+  xhr.setRequestHeader('Content-Type','application/json');
+  xhr.onreadystatechange = function() {};
+  xhr.onprogress = function() {
+    const txt = xhr.responseText;
+    const events = txt.split("\n\n");
+    events.forEach(ev => {
+      if (!ev) return;
+      const m = ev.match(/^data: (.*)$/m);
+      if (m) {
+        const data = m[1];
+        if (evtSource.onmessage) evtSource.onmessage({data});
+      }
+    });
+  };
+  xhr.onload = function() { if (evtSource.onopen) evtSource.onopen(); };
+  xhr.onerror = function(e) { if (evtSource.onerror) evtSource.onerror(e); };
+  xhr.send(opts.payload || null);
+  evtSource.close = function(){ try{ xhr.abort(); }catch(e){} };
+  return evtSource;
+}
+
+createEditor();
+</script>
+</body>
+</html>
